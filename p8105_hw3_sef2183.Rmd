@@ -1,0 +1,12 @@
+---
+title: "p8105_hw3_sef2183"
+author: "Sarah Forrest"
+date: "2022-10-06"
+output: github_document
+---
+
+# Problem 0
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, message = FALSE)
+```
