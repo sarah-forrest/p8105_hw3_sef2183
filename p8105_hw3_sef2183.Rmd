@@ -13,6 +13,7 @@ knitr::opts_chunk$set(collapse = TRUE, message = FALSE)
 
 ```{r load packages}
 library(tidyverse)
+library(patchwork)
 ```
 
 # Problem 1
@@ -50,8 +51,9 @@ accel_df =
                                      day == "Thursday" ~ "weekday",
                                      day == "Friday" ~ "weekday",
                                      day == "Saturday" ~ "weekend",
-                                     day == "Sunday" ~ "weekend")) %>%
-  # What is meant by encode data with reasonable variable classes
+                                     day == "Sunday" ~ "weekend"))
+
+# What is meant by encode data with reasonable variable classes
 ```
 
 ## Dataset description
@@ -166,20 +168,20 @@ jan_tmax_p + jul_tmax_p
 
 ## Plot of tmax vs tmin for the full dataset (panel 1) and the distribution of snowfall values greater than 0 and less than 100 separately by year (panel 2)
 Make a two-panel plot showing 
-(i) note that a scatterplot may not be the best option)
 
 ```{r problem 3 tmax vs tmin and snowfall plots}
 i_p = ny_noaa_df %>%
   filter(month == "01") %>% 
-  ggplot(aes(x = tmin, y = tmax)) + geom_point() + # NOT SCATTER - CHANGE
-  ggtitle("Plot of max temperature vs minimum temperature")
+  ggplot(aes(x = tmin, y = tmax)) +  
+  theme(legend.position = "bottom") + geom_hex() +
+  ggtitle("Max temp vs min temperature")
 
 ii_p = ny_noaa_df %>%
   filter(snow < 0 | snow > 100) %>% 
   group_by(year) %>% 
   ggplot(aes(x = year, y = snow)) + 
-  theme(axis.text.x = element_text(angle = 90,hjust = 1)) + geom_histogram() +
-  ggtitle("Distribution of snowfall values greater than 0 and less than 100 by year")
+  theme(axis.text.x = element_text(angle = 90,hjust = 1)) + geom_point() +
+  ggtitle("Distribution of extreme snowfall values by year")
 
-i_p = ii_p
+i_p + ii_p
 ```
