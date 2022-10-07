@@ -10,3 +10,89 @@ output: github_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(collapse = TRUE, message = FALSE)
 ```
+
+```{r load packages}
+library(tidyverse)
+```
+
+# Problem 1
+
+```{r read in problem 1 data}
+library(p8105.datasets)
+data("instacart")
+```
+
+## Description of the dataset:
+* Size and structure of the data
+* Describe key variables
+* Illustrative examples of observations.
+
+## Dataset questions (commenting on the results of each):
+* How many aisles are there, and which aisles are the most items ordered from?
+* Make a plot that shows the number of items ordered in each aisle, limiting this to aisles with more than 10000 items ordered. 
+* Arrange aisles sensibly, and organize your plot so others can read it.
+* Make a table showing the three most popular items in *each of the aisles* “baking ingredients”, “dog food care”, and “packaged vegetables fruits”. Include the number of times each item is ordered in your table.
+* Make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week; format this table for human readers (i.e. produce a 2 x 7 table).
+
+# Problem 2
+```{r read and manipulate problem 2 data}
+accel_df = 
+  read_csv("data/accel_data.csv") %>%
+  janitor::clean_names() %>%
+  pivot_longer(
+    starts_with("activity"),
+    names_to = "minute",
+    names_prefix = "activity_", 
+    values_to = "activity_count") %>%
+  mutate(weekday_weekend = case_when(day == "Monday" ~ "weekday",
+                                     day == "Tuesday" ~ "weekday",
+                                     day == "Wednesday" ~ "weekday",
+                                     day == "Thursday" ~ "weekday",
+                                     day == "Friday" ~ "weekday",
+                                     day == "Saturday" ~ "weekend",
+                                     day == "Sunday" ~ "weekend")) %>%
+  # What is meant by encode data with reasonable variable classes
+```
+
+## Dataset description
+* The variables in the resulting dataset include: 
+* The resulting dataset contains `r nrow(accel_df)` rows/observations and `r ncol(accel_df)` columns/variables.
+
+## Table of total activity over each day
+```{r problem 2 total activity table}
+accel_df %>%
+  group_by(day_id, week, day) %>%
+  summarize(
+    total_activity = sum(activity_count)) %>% 
+  select(day_id, week, day, total_activity) %>% 
+  knitr::kable()
+```
+
+* THE TRENDS APPARENT ARE:
+
+## Plot of the 24-hour activity time courses for each day 
+
+```{r problem 2 plot}
+accel_df %>%
+  group_by(day_id, week, day) %>%
+  summarize(
+    total_activity = sum(activity_count)) %>% 
+  ggplot(aes(x = day, y = total_activity, color = day)) + 
+    geom_point() + geom_line() + 
+    theme(legend.position = "bottom")
+```
+
+* PATTERNS AND CONCLUSIONS
+
+# Problem 3
+
+```{r read in problem 3 data}
+library(p8105.datasets)
+data("ny_noaa")
+```
+
+The goal is to do some exploration of this dataset. To that end, write a short description of the dataset, noting the size and structure of the data, describing some key variables, and indicating the extent to which missing data is an issue. Then, do or answer the following (commenting on the results of each):
+
+Do some data cleaning. Create separate variables for year, month, and day. Ensure observations for temperature, precipitation, and snowfall are given in reasonable units. For snowfall, what are the most commonly observed values? Why?
+Make a two-panel plot showing the average max temperature in January and in July in each station across years. Is there any observable / interpretable structure? Any outliers?
+Make a two-panel plot showing (i) tmax vs tmin for the full dataset (note that a scatterplot may not be the best option); and (ii) make a plot showing the distribution of snowfall values greater than 0 and less than 100 separately by year.
