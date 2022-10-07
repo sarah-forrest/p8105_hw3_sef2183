@@ -59,6 +59,8 @@ accel_df =
 * The resulting dataset contains `r nrow(accel_df)` rows/observations and `r ncol(accel_df)` columns/variables.
 
 ## Table of total activity over each day
+TOTAL FOR DAY ID OR DAY?
+
 ```{r problem 2 total activity table}
 accel_df %>%
   group_by(day_id, week, day) %>%
@@ -91,8 +93,93 @@ library(p8105.datasets)
 data("ny_noaa")
 ```
 
-The goal is to do some exploration of this dataset. To that end, write a short description of the dataset, noting the size and structure of the data, describing some key variables, and indicating the extent to which missing data is an issue. Then, do or answer the following (commenting on the results of each):
+## Description of the dataset:
+* The size of the dataset is
+* The structure of the dataset is
+* Key variables in the dataset are (description)
+* (indicating the extent to which missing data is an issue)
 
-Do some data cleaning. Create separate variables for year, month, and day. Ensure observations for temperature, precipitation, and snowfall are given in reasonable units. For snowfall, what are the most commonly observed values? Why?
-Make a two-panel plot showing the average max temperature in January and in July in each station across years. Is there any observable / interpretable structure? Any outliers?
-Make a two-panel plot showing (i) tmax vs tmin for the full dataset (note that a scatterplot may not be the best option); and (ii) make a plot showing the distribution of snowfall values greater than 0 and less than 100 separately by year.
+id: Weather station ID
+date: Date of observation
+prcp: Precipitation (tenths of mm)
+snow: Snowfall (mm)
+snwd: Snow depth (mm)
+tmax: Maximum temperature (tenths of degrees C)
+tmin: Minimum temperature (tenths of degrees C)
+
+```{r manipulate problem 3 data}
+ny_noaa_df = 
+  ny_noaa %>%
+  janitor::clean_names() %>%
+  separate(date, into = c("year", "month", "day"), sep = '-') %>%
+  mutate(
+    tmax = as.numeric(tmax),
+    tmin = as.numeric(tmin)) %>%
+  mutate(
+    prcp = prcp / 10, 
+    tmin = tmin / 10,
+    tmax = tmax / 10) # Ensure observations for temperature, precipitation, and snowfall are given in reasonable units?
+```
+
+## Dataset questions:
+### Most common values of snowfall
+#### Distribution histogram
+
+```{r problem 3 snowfall plot}
+ggplot(ny_noaa_df, aes(x = snow)) + geom_histogram()
+```
+
+#### Table
+```{r problem 3 snowfall count}
+ny_noaa_df %>%
+  count(snow, name = "count") %>% 
+  knitr::kable()
+```
+
+From both the distribution histogram of snowfall and the table with the counts for each value of snowfall, the most commonly observed value of snowfall is _________. The reason is because ___________.
+
+## Plot of average max temperature in January and in July in each station across years
+Make a two-panel plot
+
+```{r problem 3 max temp plots}
+jan_tmax_p = ny_noaa_df %>%
+  filter(month == "01") %>% 
+  group_by(year) %>% 
+  mutate(mean_tmax = mean(tmax, na.rm = TRUE)) %>% 
+  ggplot(aes(x = year, y = mean_tmax)) + 
+  theme(axis.text.x = element_text(angle = 90,hjust = 1)) + geom_point() +
+  ggtitle("Average max temperature in January in each station across years")
+
+jul_tmax_p = ny_noaa_df %>%
+  filter(month == "07") %>% 
+  group_by(year) %>% 
+  mutate(mean_tmax = mean(tmax, na.rm = TRUE)) %>% 
+  ggplot(aes(x = year, y = mean_tmax)) + 
+  theme(axis.text.x = element_text(angle = 90,hjust = 1)) + geom_point() +
+  ggtitle("Average max temperature in July in each station across years")
+
+jan_tmax_p + jul_tmax_p
+```
+
+* There [IS/IS NOT] an observable interpretable structure
+* There [ARE/ARE NOT] outliers
+
+## Plot of tmax vs tmin for the full dataset (panel 1) and the distribution of snowfall values greater than 0 and less than 100 separately by year (panel 2)
+Make a two-panel plot showing 
+(i) note that a scatterplot may not be the best option)
+
+```{r problem 3 tmax vs tmin and snowfall plots}
+i_p = ny_noaa_df %>%
+  filter(month == "01") %>% 
+  ggplot(aes(x = tmin, y = tmax)) + geom_point() + # NOT SCATTER - CHANGE
+  ggtitle("Plot of max temperature vs minimum temperature")
+
+ii_p = ny_noaa_df %>%
+  filter(snow < 0 | snow > 100) %>% 
+  group_by(year) %>% 
+  ggplot(aes(x = year, y = snow)) + 
+  theme(axis.text.x = element_text(angle = 90,hjust = 1)) + geom_histogram() +
+  ggtitle("Distribution of snowfall values greater than 0 and less than 100 by year")
+
+i_p = ii_p
+```
