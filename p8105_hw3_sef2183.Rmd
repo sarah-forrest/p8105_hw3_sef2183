@@ -36,6 +36,7 @@ data("instacart")
 * Make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week; format this table for human readers (i.e. produce a 2 x 7 table).
 
 # Problem 2
+Below, the accelerometer data from `accel_data.csv` is read in and the variable names are cleaned using `clean_names()`. Then, `pivot_longer()` is used to manipulate the dataset from wide to long format. To do this, all variable names beginning with "activity" were split into 2 different variables: the variable names were changed to `minute` and the prefix "activity_" was removed so that the variable values conatined only the minute number, and the values were changed to `activity_count`, indicating the amount of activity read by the accelerometer during each 1 minute window. Finally, a new variable called `weekday_weekend` was created to indicate whether the day of the week is a weekday or a weekend day. 
 ```{r read and manipulate problem 2 data}
 accel_df = 
   read_csv("data/accel_data.csv") %>%
@@ -57,11 +58,13 @@ accel_df =
 ```
 
 ## Dataset description
-* The variables in the resulting dataset include: 
+* The variables in the resulting dataset include: `week`, `day_id` (day count number), `day` (day of the week), `minute`, `activity_count`, and `weekday_weekend` (either weekday or weekend)
 * The resulting dataset contains `r nrow(accel_df)` rows/observations and `r ncol(accel_df)` columns/variables.
 
 ## Table of total activity over each day
-TOTAL FOR DAY ID OR DAY?
+Below, the tidied accelerometer dataset was aggregated across minutes using `group_by()` to group the data together by the `DAY_ID` variable. Then a `total_activity` variable was created by summing the `activity_count` variables for each 1 minute window throughout the day to indicate the total activity read by the accelerometer during each day of the study. Finally, only the relevant variables `day_id`, `week`, `day`, and `total_activity` were selected from the dataset using `select()` and a table was created to show the daily totals for each of the 35 days of the study using `kable()` from the `knitr` package. 
+
+TOTAL FOR DAY_ID OR DAY OF THE WEEK?
 
 ```{r problem 2 total activity table}
 accel_df %>%
@@ -72,9 +75,10 @@ accel_df %>%
   knitr::kable()
 ```
 
-* THE TRENDS APPARENT ARE:
+* It's very difficult to see any trends that are apparent from this table. I immediately noticed that the last 2 Saturdays in the study (days 24 and 31) had a much lower total activity count than the other days in the study. However, the previous Saturdays in the study had relatively similar total activity counts to the rest of the days in the study, so this isn't a trend that can be seen through the entire dataset. Visualization may be required to see any trends, if they are apparent in this dataset. 
 
 ## Plot of the 24-hour activity time courses for each day 
+Below, a single panel-plot was created using `ggplot()` to show the 24-hour activity time courses for each day, using color to indicate the day of the week.
 
 ```{r problem 2 plot}
 accel_df %>%
