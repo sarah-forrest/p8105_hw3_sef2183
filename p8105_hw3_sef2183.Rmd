@@ -63,7 +63,7 @@ accel_df =
 * The resulting dataset contains `r nrow(accel_df)` rows/observations and `r ncol(accel_df)` columns/variables.
 
 ## Table of total activity over each day
-Below, the tidied accelerometer dataset was aggregated across minutes using `group_by()` to group the data together by the `DAY_ID` variable. Then a `total_activity` variable was created by summing the `activity_count` variables for each 1 minute window throughout the day to indicate the total activity read by the accelerometer during each day of the study. Finally, only the relevant variables `day_id`, `week`, `day`, and `total_activity` were selected from the dataset using `select()` and a table was created to show the daily totals for each of the 35 days of the study using `kable()` from the `knitr` package. 
+Below, the tidied accelerometer dataset was aggregated across minutes using `group_by()` to group the data together by the `day_id` variable. Then a `total_activity` variable was created by summing the `activity_count` variables for each 1 minute window throughout the day to indicate the total activity read by the accelerometer during each day of the study. Finally, only the relevant variables `day_id`, `week`, `day`, and `total_activity` were selected from the dataset using `select()` and a table was created to show the daily totals for each of the 35 days of the study using `kable()` from the `knitr` package. 
 
 ```{r problem 2 total activity table}
 accel_df %>%
@@ -104,18 +104,28 @@ data("ny_noaa")
 ```
 
 ## Description of the dataset:
-* The size of the dataset is
-* The structure of the dataset is
-* Key variables in the dataset are (description)
-* (indicating the extent to which missing data is an issue)
+* The size of the dataset is 2,595,176 observations (rows) and variables 7 variables (columns)
+* The structure of the dataset is in long format, with 1 row for each observation date for each weather station.
+* Variables in the dataset include: `id` (weather station ID), `date` (observation date), `prcp` (precipitation measured in tenths of a mm), `snow` (snowfall measured in mm), `snwd` (snow depth measured in mm), `tmax` (maximum temperature measured in tenths of degrees C), and `tmin` (minimum temperature measured in tenths of degrees C). 
+* The dataset has quite a bit of missing data, which has the potential to create issues for future analysis:
 
-id: Weather station ID
-date: Date of observation
-prcp: Precipitation (tenths of mm)
-snow: Snowfall (mm)
-snwd: Snow depth (mm)
-tmax: Maximum temperature (tenths of degrees C)
-tmin: Minimum temperature (tenths of degrees C)
+```{r problem 3 missing data}
+sum(is.na(ny_noaa$prcp)) 
+sum(is.na(ny_noaa$snow))
+sum(is.na(ny_noaa$snwd))
+sum(is.na(ny_noaa$tmax))
+sum(is.na(ny_noaa$tmin))
+```
+
+* There are 145,838 missing observations for `prcp`
+* There are 381,221 missing observations for `snow`
+* There are 591,786 missing observations for `snwd`
+* There are 1,134,358 missing observations for `tmax`
+* There are 1,134,420 missing observations for `tmin`
+
+It's worth noting that the `tmax` and `tmin` variables have the most missing observations, and `prcp` has the least number of missing observations. Therefore, missing data will be more of a problem for analyses involving `tmax` and `tmin`, but less of a problem for analyses with the other variables in the dataset.
+
+Below, a dataframe is created from the `ny_noaa` dataset  and the variable names are cleaned using the `clean_names()` function from the `janitor` package. Then, separate variables for `year`, `month`, and `day` were created by separating the `date` variable using `separate()` and indicating "-" as the delimiter. Then, `mutate()` was used on `tmax` and `tmin` first to convert them to numeric variables using `as.numeric()`, and then to convert `tmax`, `tmin`, and `prcp` to reasonable units. In the description of the original `ny_noaa` dataset, `tmax`, `tmin`, and `prcp` were reported in tenths of mm and tenths of degrees Celsius, which is not very easy to interpret. Therefore, the values were divided by 10 so the variables were in  reasonable units. 
 
 ```{r manipulate problem 3 data}
 ny_noaa_df = 
@@ -128,17 +138,8 @@ ny_noaa_df =
   mutate(
     prcp = prcp / 10, 
     tmin = tmin / 10,
-    tmax = tmax / 10) # Ensure observations for temperature, precipitation, and snowfall are given in reasonable units?
+    tmax = tmax / 10) 
 ```
-
-
-NOTE ABOUT THE SNOW VARIABLE FROM DISCUSSION BOARD
-
-As for the final plot, you should filter values based on the original definition of snowfall (i.e., using the original units). To that end, you might want to consider retaining both the original variable snow as well as your proposal for a variable with a more sensical unit. As long as you're clear about how you label values and units in your visualizations, you should be good!
-
-Hello, Haochen!
-
-You should make a single plot for part (i) and a single plot for part (ii). Then, you should combine these two plots side by side into a single-panel exhibit; you can find a refresher on how to do that hereLinks to an external site.. For the first plot, you are correct that "vs" implies tmax should be on the vertical axis and that tmin should be on the horizontal axis.
 
 ## Dataset questions:
 ### Most common values of snowfall
@@ -223,3 +224,11 @@ ii_p = ny_noaa_df %>%
 
 i_p + ii_p
 ```
+
+NOTE ABOUT THE SNOW VARIABLE FROM DISCUSSION BOARD
+
+As for the final plot, you should filter values based on the original definition of snowfall (i.e., using the original units). To that end, you might want to consider retaining both the original variable snow as well as your proposal for a variable with a more sensical unit. As long as you're clear about how you label values and units in your visualizations, you should be good!
+
+Hello, Haochen!
+
+You should make a single plot for part (i) and a single plot for part (ii). Then, you should combine these two plots side by side into a single-panel exhibit; you can find a refresher on how to do that hereLinks to an external site.. For the first plot, you are correct that "vs" implies tmax should be on the vertical axis and that tmin should be on the horizontal axis.
