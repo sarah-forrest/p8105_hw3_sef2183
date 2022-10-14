@@ -24,16 +24,60 @@ data("instacart")
 ```
 
 ## Description of the dataset:
-* Size and structure of the data
-* Describe key variables
-* Illustrative examples of observations.
+* This dataset contains 1384617 rows and 15 columns, with each row resprenting a single product from an instacart order.
+* Key variables include identifiers for user, order, and product; the order in which each product was added to the cart. There are several order-level variables, describing the day and time of the order, and number of days since prior order. Then there are several item-specific variables, describing the product name (e.g. Yogurt, Avocado), department (e.g. dairy and eggs, produce), and aisle (e.g. yogurt, fresh fruits), and whether the item
+has been ordered by this user in the past. 
+* In total, there are 39123 products found in 131209 orders from 131209 distinct users.
 
-## Dataset questions (commenting on the results of each):
-* How many aisles are there, and which aisles are the most items ordered from?
-* Make a plot that shows the number of items ordered in each aisle, limiting this to aisles with more than 10000 items ordered. 
-* Arrange aisles sensibly, and organize your plot so others can read it.
-* Make a table showing the three most popular items in *each of the aisles* “baking ingredients”, “dog food care”, and “packaged vegetables fruits”. Include the number of times each item is ordered in your table.
-* Make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week; format this table for human readers (i.e. produce a 2 x 7 table).
+
+## Dataset questions:
+
+Below is a table summarizing the number of items ordered from aisle. In total, there are 134 aisles, with fresh vegetables and fresh fruits holding the most items ordered by far:
+
+```{r problem 1 aisle item count}
+instacart %>% 
+  count(aisle) %>% 
+  arrange(desc(n))
+```
+
+Below is a plot that shows the number of items ordered in each aisle. Here, aisles are ordered by ascending number of items:
+
+``` {r problem 1 aisle item count plot}
+instacart %>% 
+  count(aisle) %>% 
+  filter(n > 10000) %>% 
+  mutate(aisle = fct_reorder(aisle, n)) %>% 
+  ggplot(aes(x = aisle, y = n)) + 
+  geom_point() + 
+  labs(title = "Number of items ordered in each aisle") +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))
+```
+
+Below is a table showing the three most popular items in aisles `baking ingredients`, `dog food care`, and `packaged vegetables fruits`, and includes the number of times each item is ordered:
+
+```{r problem 1 aisle popular items table}
+instacart %>% 
+  filter(aisle %in% c("baking ingredients", "dog food care", "packaged vegetables fruits")) %>%
+  group_by(aisle) %>% 
+  count(product_name) %>% 
+  mutate(rank = min_rank(desc(n))) %>% 
+  filter(rank < 4) %>% 
+  arrange(desc(n)) %>%
+  knitr::kable()
+```
+
+Below is a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week. This table has been formatted in an untidy manner for human readers:
+
+``` {r problem 1 apple coffe time table}
+instacart %>%
+  filter(product_name %in% c("Pink Lady Apples", "Coffee Ice Cream")) %>%
+  group_by(product_name, order_dow) %>%
+  summarize(mean_hour = mean(order_hour_of_day)) %>%
+  spread(key = order_dow, value = mean_hour) %>%
+  knitr::kable(digits = 2)
+```
+
+Pink Lady Apples are generally purchased slightly earlier in the day than Coffee Ice Cream, with the exception of day 5.
 
 # Problem 2
 Below, the accelerometer data from `accel_data.csv` is read in and the variable names are cleaned using `clean_names()`. Then, `pivot_longer()` is used to manipulate the dataset from wide to long format. To do this, all variable names beginning with "activity" (`activity_1` to `activity_1440`) were transformed into 2 different variables: one denoting the minute of the day and one denoting the activity measure.The variable names were changed to `minute` and the prefix "activity_" was removed so that the variable values contained only the minute number, and the values were changed to `activity_count`, indicating the amount of activity read by the accelerometer during each 1 minute window. Finally, a new variable called `weekday_weekend` was created to indicate whether the day of the week is a weekday or a weekend day. 
