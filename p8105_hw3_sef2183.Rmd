@@ -1,7 +1,7 @@
 ---
 title: "p8105_hw3_sef2183"
 author: "Sarah Forrest"
-date: "2022-10-05"
+date: "2022-10-06"
 output: github_document
 ---
 
@@ -260,7 +260,7 @@ jan_tmax_line + jul_tmax_line
 
 ## Plot of tmax vs tmin for the full dataset (panel 1) and the distribution of snowfall values greater than 0 and less than 100 separately by year (panel 2)
 
-Below, a two-panel plot depicting the minimum temperature vs. the maximum temperature for the full dataset as well as the distribution of snowfall values greater than 0 and less than 100 are displayed side by side. For the first plot, an object was created and `ggplot()` was used to plot the maximum temperatures against the minimum temperatures in the entire dataset. Rather than a scatterplot, a hexagonal heatmap was created to display the density coloring of the data points. For the second plot, the dataset was filtered to include only extreme values of snowfall less than 0 and greater than 100 and grouped by year. `ggplot()` was used to create a  distribution (density) plot using `geom_violin()`.
+Below, a two-panel plot depicting the minimum temperature vs. the maximum temperature for the full dataset as well as the distribution of snowfall values greater than 0 and less than 100 are displayed side by side. For the first plot, an object was created and `ggplot()` was used to plot the maximum temperatures against the minimum temperatures in the entire dataset. Rather than a scatterplot, a hexagonal heatmap was created to display the density coloring of the data points. For the second plot, the dataset was filtered to include only extreme values of snowfall greater than 0 and less than 100 and grouped by year. `ggplot()` was used to create a  distribution (density) plot using `geom_violin()`.
 
 ```{r problem 3 tmax vs tmin and snowfall plots}
 i_p = ny_noaa_df %>%
@@ -269,7 +269,7 @@ i_p = ny_noaa_df %>%
   ggtitle("Max temp vs. min temp")
 
 ii_p = ny_noaa_df %>%
-  filter(snow < 0 | snow > 100) %>% 
+  filter(snow > 0 | snow < 100) %>% 
   group_by(year) %>% 
   ggplot(aes(x = year, y = snow)) + 
   theme(axis.text.x = element_text(angle = 90,hjust = 1)) + geom_violin() + ylab("snowfall (mm)") +
